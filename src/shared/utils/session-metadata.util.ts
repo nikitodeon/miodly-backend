@@ -26,13 +26,28 @@ export function getSessionMetadata(
 
 	const location = lookup(ip)
 	const device = new DeviceDetector().parse(userAgent)
-
+	if (location === null) {
+		return {
+			location: {
+				country: 'Неизвестно',
+				city: 'Неизвестно',
+				latidute: 0,
+				longitude: 0
+			},
+			device: {
+				browser: 'Неизвестно',
+				os: 'Неизвестно',
+				type: 'Неизвестно'
+			},
+			ip
+		}
+	}
 	return {
 		location: {
 			country: countries.getName(location.country, 'en') || 'Неизвестно',
-			city: location.city || 'Неизвестно',
-			latidute: location.ll[0] || 0,
-			longitude: location.ll[1] || 0
+			city: location?.city || 'Неизвестно',
+			latidute: location?.ll[0] || 0,
+			longitude: location?.ll[1] || 0
 		},
 		device: {
 			browser: device.client?.name || 'Неизвестно',

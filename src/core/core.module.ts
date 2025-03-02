@@ -7,9 +7,9 @@ import { AccountModule } from '../modules/auth/account/account.module'
 // import { DeactivateModule } from '../modules/auth/deactivate/deactivate.module'
 // import { PasswordRecoveryModule } from '../modules/auth/password-recovery/password-recovery.module'
 // import { ProfileModule } from '../modules/auth/profile/profile.module'
-// import { SessionModule } from '../modules/auth/session/session.module'
+import { SessionModule } from '../modules/auth/session/session.module'
 // import { TotpModule } from '../modules/auth/totp/totp.module'
-// import { VerificationModule } from '../modules/auth/verification/verification.module'
+import { VerificationModule } from '../modules/auth/verification/verification.module'
 // import { CategoryModule } from '../modules/category/category.module'
 // import { ChannelModule } from '../modules/channel/channel.module'
 // import { ChatModule } from '../modules/chat/chat.module'
@@ -33,8 +33,7 @@ import { getGraphQLConfig } from './config/graphql.config'
 // import { getLiveKitConfig } from './config/livekit.config'
 // import { getStripeConfig } from './config/stripe.config'
 import { PrismaModule } from './prisma/prisma.module'
-
-// import { RedisModule } from './redis/redis.module'
+import { RedisModule } from './redis/redis.module'
 
 @Module({
 	imports: [
@@ -59,17 +58,17 @@ import { PrismaModule } from './prisma/prisma.module'
 		// 	inject: [ConfigService]
 		// }),
 		PrismaModule,
-		// RedisModule,
+		RedisModule,
 		// MailModule,
 		// StorageModule,
 		// LivekitModule,
 		// TelegramModule,
 		// StripeModule,
 		// CronModule,
-		AccountModule
-		// SessionModule,
+		AccountModule,
+		SessionModule,
 		// ProfileModule,
-		// VerificationModule,
+		VerificationModule
 		// PasswordRecoveryModule,
 		// TotpModule,
 		// DeactivateModule,

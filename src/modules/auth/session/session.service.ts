@@ -119,8 +119,8 @@ export class SessionService {
 			}
 
 			const totp = new TOTP({
-				issuer: 'TeaStream',
-				label: `${user.email}`,
+				issuer: 'Miodly',
+				label: `${user.email} Miodly`,
 				algorithm: 'SHA1',
 				digits: 6,
 				secret: user.totpSecret ?? ''

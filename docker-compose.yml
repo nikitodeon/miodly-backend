@@ -14,7 +14,7 @@ services:
         volumes:
             - postgres_data:/var/lib/postgresql/data
         networks:
-            - teastream-backend
+            - miodly-backend
 
     redis:
         container_name: redis-miodly
@@ -26,11 +26,11 @@ services:
         volumes:
             - redis_data:/data
         networks:
-            - teastream-backend
+            - miodly-backend
 
 volumes:
     postgres_data:
     redis_data:
 
 networks:
-    teastream-backend:
+    miodly-backend:

@@ -17,8 +17,8 @@ import { CreateUserInput } from './inputs/create-user.input'
 @Injectable()
 export class AccountService {
 	public constructor(
-		private readonly prismaService: PrismaService
-		// private readonly verificationService: VerificationService
+		private readonly prismaService: PrismaService,
+		private readonly verificationService: VerificationService
 	) {}
 
 	// public async findAll() {
@@ -32,9 +32,9 @@ export class AccountService {
 				id
 			},
 			include: {
-				// socialLinks: true,
+				socialLinks: true,
 				// stream: true,
-				// notificationSettings: true
+				notificationSettings: true
 			}
 		})
 
@@ -69,15 +69,15 @@ export class AccountService {
 				username,
 				email,
 				password: await hash(password),
-				displayName: username
+				displayName: username,
 				// stream: {
 				// 	create: {
 				// 		title: `Стрим ${username}`
 				// 	}
 				// },
-				// notificationSettings: {
-				// 	create: {}
-				// }
+				notificationSettings: {
+					create: {}
+				}
 			}
 		})
 
