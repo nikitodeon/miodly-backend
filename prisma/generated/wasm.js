@@ -190,11 +190,7 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 exports.NotificationType = exports.$Enums.NotificationType = {
-  STREAM_START: 'STREAM_START',
-  NEW_FOLLOWER: 'NEW_FOLLOWER',
-  NEW_SPONSORSHIP: 'NEW_SPONSORSHIP',
-  ENABLE_TWO_FACTOR: 'ENABLE_TWO_FACTOR',
-  VERIFIED_CHANNEL: 'VERIFIED_CHANNEL'
+  ENABLE_TWO_FACTOR: 'ENABLE_TWO_FACTOR'
 };
 
 exports.TokenType = exports.$Enums.TokenType = {

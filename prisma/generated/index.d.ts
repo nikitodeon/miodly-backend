@@ -54,11 +54,7 @@ export type TokenType = (typeof TokenType)[keyof typeof TokenType]
 
 
 export const NotificationType: {
-  STREAM_START: 'STREAM_START',
-  NEW_FOLLOWER: 'NEW_FOLLOWER',
-  NEW_SPONSORSHIP: 'NEW_SPONSORSHIP',
-  ENABLE_TWO_FACTOR: 'ENABLE_TWO_FACTOR',
-  VERIFIED_CHANNEL: 'VERIFIED_CHANNEL'
+  ENABLE_TWO_FACTOR: 'ENABLE_TWO_FACTOR'
 };
 
 export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]

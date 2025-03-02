@@ -154,7 +154,7 @@ export class DeactivateService {
 				deactivateToken.token,
 				metadata
 			)
-			// await this.telegramService.sendAccountDeletion(user.telegramId)
+			await this.telegramService.sendAccountDeletion(user.telegramId)
 		}
 
 		return true

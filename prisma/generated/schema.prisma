@@ -114,11 +114,7 @@ enum TokenType {
 }
 
 enum NotificationType {
-  STREAM_START
-  NEW_FOLLOWER
-  NEW_SPONSORSHIP
   ENABLE_TWO_FACTOR
-  VERIFIED_CHANNEL
 
   @@map("notification_types")
 }
