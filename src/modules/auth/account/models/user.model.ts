@@ -1,6 +1,10 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql'
 
 import type { User } from '@/prisma/generated'
+import { NotificationSettingsModel } from '@/src/modules/notification/models/notification-settings.model'
+import { NotificationModel } from '@/src/modules/notification/models/notification.model'
+
+import { SocialLinkModel } from '../../profile/models/social-link.model'
 
 @ObjectType()
 export class UserModel implements User {
@@ -45,6 +49,15 @@ export class UserModel implements User {
 
 	@Field(() => Date, { nullable: true })
 	public deactivatedAt: Date
+
+	@Field(() => [SocialLinkModel])
+	public socialLinks: SocialLinkModel[]
+
+	@Field(() => [NotificationModel])
+	public notifications: NotificationModel[]
+
+	@Field(() => NotificationSettingsModel, { nullable: true })
+	public notificationSettings: NotificationSettingsModel
 
 	@Field(() => Date)
 	public createdAt: Date
