@@ -10,6 +10,7 @@ import { ProfileModule } from '../modules/auth/profile/profile.module'
 import { SessionModule } from '../modules/auth/session/session.module'
 import { TotpModule } from '../modules/auth/totp/totp.module'
 import { VerificationModule } from '../modules/auth/verification/verification.module'
+import { ChatroomModule } from '../modules/chatroom/chatroom.module'
 // import { CategoryModule } from '../modules/category/category.module'
 // import { ChannelModule } from '../modules/channel/channel.module'
 // import { ChatModule } from '../modules/chat/chat.module'
@@ -79,10 +80,11 @@ import { RedisModule } from './redis/redis.module'
 		// ChatModule,
 		// FollowModule,
 		// ChannelModule,
-		NotificationModule
+		NotificationModule,
 		// PlanModule,
 		// TransactionModule,
 		// SubscriptionModule
+		ChatroomModule
 	]
 })
 export class CoreModule {}

@@ -136,6 +136,30 @@ exports.Prisma.UserScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.ChatroomScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.MessageScalarFieldEnum = {
+  id: 'id',
+  content: 'content',
+  imageUrl: 'imageUrl',
+  userId: 'userId',
+  chatroomId: 'chatroomId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ChatroomUsersScalarFieldEnum = {
+  chatroomId: 'chatroomId',
+  userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SocialLinkScalarFieldEnum = {
   id: 'id',
   title: 'title',
@@ -202,6 +226,9 @@ exports.TokenType = exports.$Enums.TokenType = {
 
 exports.Prisma.ModelName = {
   User: 'User',
+  Chatroom: 'Chatroom',
+  Message: 'Message',
+  ChatroomUsers: 'ChatroomUsers',
   SocialLink: 'SocialLink',
   NotificationSettings: 'NotificationSettings',
   Notification: 'Notification',

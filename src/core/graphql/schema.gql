@@ -32,6 +32,15 @@ input ChangeProfileInfoInput {
   username: String!
 }
 
+type Chatroom {
+  createdAt: DateTime
+  id: ID
+  messages: [Message!]
+  name: String
+  updatedAt: DateTime
+  users: [UserModel!]
+}
+
 input CreateUserInput {
   email: String!
   password: String!
@@ -73,16 +82,29 @@ input LoginInput {
   pin: String
 }
 
+type Message {
+  chatroom: Chatroom
+  content: String
+  createdAt: DateTime
+  id: ID
+  imageUrl: String
+  updatedAt: DateTime
+  user: UserModel
+}
+
 type Mutation {
+  addUsersToChatroom(chatroomId: Float!, userIds: [String!]!): Chatroom!
   changeEmail(data: ChangeEmailInput!): Boolean!
   changeNotificationsSettings(data: ChangeNotificationsSettingsInput!): ChangeNotificationsSettingsResponse!
   changePassword(data: ChangePasswordInput!): Boolean!
   changeProfileAvatar(avatar: Upload!): Boolean!
   changeProfileInfo(data: ChangeProfileInfoInput!): Boolean!
   clearSessionCookie: Boolean!
+  createChatroom(name: String!): Chatroom!
   createSocialLink(data: SocialLinkInput!): Boolean!
   createUser(data: CreateUserInput!): Boolean!
   deactivateAccount(data: DeactivateAccountInput!): AuthModel!
+  deleteChatroom(chatroomId: Float!): String!
   disableTotp: Boolean!
   enableTotp(data: EnableTotpInput!): Boolean!
   loginUser(data: LoginInput!): AuthModel!
@@ -93,7 +115,10 @@ type Mutation {
   removeSocialLink(id: String!): Boolean!
   reorderSocialLinks(list: [SocialLinkOrderInput!]!): Boolean!
   resetPassword(data: ResetPasswordInput!): Boolean!
+  sendMessage(chatroomId: Float!, content: String!, image: Upload): Message!
   updateSocialLink(data: SocialLinkInput!, id: String!): Boolean!
+  userStartedTypingMutation(chatroomId: Float!): UserModel!
+  userStoppedTypingMutation(chatroomId: Float!): UserModel!
   verifyAccount(data: VerificationInput!): AuthModel!
 }
 
@@ -136,6 +161,8 @@ type Query {
   findSessionsByUser: [SessionModel!]!
   findSocialLinks: [SocialLinkModel!]!
   generateTotpSecret: TotpModel!
+  getChatroomsForUser(userId: String!): [Chatroom!]!
+  getMessagesForChatroom(chatroomId: Float!): [Message!]!
 }
 
 input ResetPasswordInput {
@@ -173,6 +200,12 @@ type SocialLinkModel {
 input SocialLinkOrderInput {
   id: String!
   position: Float!
+}
+
+type Subscription {
+  newMessage(chatroomId: Float!): Message
+  userStartedTyping(chatroomId: Float!, userId: Float!): UserModel
+  userStoppedTyping(chatroomId: Float!, userId: Float!): UserModel
 }
 
 type TotpModel {
