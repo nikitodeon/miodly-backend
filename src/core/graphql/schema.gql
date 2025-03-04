@@ -107,6 +107,8 @@ type Mutation {
   deleteChatroom(chatroomId: Float!): String!
   disableTotp: Boolean!
   enableTotp(data: EnableTotpInput!): Boolean!
+  enterChatroom(chatroomId: Int!): Boolean!
+  leaveChatroom(chatroomId: Int!): Boolean!
   loginUser(data: LoginInput!): AuthModel!
   logoutUser: Boolean!
   newPassword(data: NewPasswordInput!): Boolean!
@@ -203,6 +205,7 @@ input SocialLinkOrderInput {
 }
 
 type Subscription {
+  liveUsersInChatroom(chatroomId: Int!): [UserModel!]
   newMessage(chatroomId: Float!): Message
   userStartedTyping(chatroomId: Float!, userId: Float!): UserModel
   userStoppedTyping(chatroomId: Float!, userId: Float!): UserModel

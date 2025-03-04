@@ -21,6 +21,7 @@ import { MailModule } from '../modules/libs/mail/mail.module'
 import { StorageModule } from '../modules/libs/storage/storage.module'
 // import { StripeModule } from '../modules/libs/stripe/stripe.module'
 import { TelegramModule } from '../modules/libs/telegram/telegram.module'
+import { LiveChatroomModule } from '../modules/live-chatroom/live-chatroom.module'
 import { NotificationModule } from '../modules/notification/notification.module'
 // import { PlanModule } from '../modules/sponsorship/plan/plan.module'
 // import { SubscriptionModule } from '../modules/sponsorship/subscription/subscription.module'
@@ -84,7 +85,8 @@ import { RedisModule } from './redis/redis.module'
 		// PlanModule,
 		// TransactionModule,
 		// SubscriptionModule
-		ChatroomModule
+		ChatroomModule,
+		LiveChatroomModule
 	]
 })
 export class CoreModule {}

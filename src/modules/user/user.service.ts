@@ -78,6 +78,11 @@ export class UserService {
 		return this.prisma.user.findUnique({
 			where: {
 				id: userId
+			},
+			include: {
+				socialLinks: true, // Включаем связанные социальные ссылки
+				notifications: true, // Включаем связанные уведомления
+				notificationSettings: true // Включаем настройки уведомлений
 			}
 		})
 	}
