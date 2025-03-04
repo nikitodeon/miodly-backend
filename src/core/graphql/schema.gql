@@ -165,6 +165,8 @@ type Query {
   generateTotpSecret: TotpModel!
   getChatroomsForUser(userId: String!): [Chatroom!]!
   getMessagesForChatroom(chatroomId: Float!): [Message!]!
+  getUsersOfChatroom(chatroomId: Float!): [UserModel!]!
+  searchUsers(fullname: String!): [UserModel!]!
 }
 
 input ResetPasswordInput {

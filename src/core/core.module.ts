@@ -2,6 +2,7 @@ import { ApolloDriver } from '@nestjs/apollo'
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { GraphQLModule } from '@nestjs/graphql'
+import { Use } from 'nestjs-telegraf'
 
 import { AccountModule } from '../modules/auth/account/account.module'
 import { DeactivateModule } from '../modules/auth/deactivate/deactivate.module'
@@ -23,6 +24,7 @@ import { StorageModule } from '../modules/libs/storage/storage.module'
 import { TelegramModule } from '../modules/libs/telegram/telegram.module'
 import { LiveChatroomModule } from '../modules/live-chatroom/live-chatroom.module'
 import { NotificationModule } from '../modules/notification/notification.module'
+import { UserModule } from '../modules/user/user.module'
 // import { PlanModule } from '../modules/sponsorship/plan/plan.module'
 // import { SubscriptionModule } from '../modules/sponsorship/subscription/subscription.module'
 // import { TransactionModule } from '../modules/sponsorship/transaction/transaction.module'
@@ -86,7 +88,8 @@ import { RedisModule } from './redis/redis.module'
 		// TransactionModule,
 		// SubscriptionModule
 		ChatroomModule,
-		LiveChatroomModule
+		LiveChatroomModule,
+		UserModule
 	]
 })
 export class CoreModule {}
