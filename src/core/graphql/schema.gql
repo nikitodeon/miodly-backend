@@ -117,7 +117,7 @@ type Mutation {
   removeSocialLink(id: String!): Boolean!
   reorderSocialLinks(list: [SocialLinkOrderInput!]!): Boolean!
   resetPassword(data: ResetPasswordInput!): Boolean!
-  sendMessage(chatroomId: Float!, content: String!, image: Upload): Message!
+  sendMessage(chatroomId: Float!, content: String!, file: Upload): Message!
   updateSocialLink(data: SocialLinkInput!, id: String!): Boolean!
   userStartedTypingMutation(chatroomId: Float!): UserModel!
   userStoppedTypingMutation(chatroomId: Float!): UserModel!
@@ -209,8 +209,8 @@ input SocialLinkOrderInput {
 type Subscription {
   liveUsersInChatroom(chatroomId: Int!): [UserModel!]
   newMessage(chatroomId: Float!): Message
-  userStartedTyping(chatroomId: Float!, userId: Float!): UserModel
-  userStoppedTyping(chatroomId: Float!, userId: Float!): UserModel
+  userStartedTyping(chatroomId: Float!, userId: String!): UserModel
+  userStoppedTyping(chatroomId: Float!, userId: String!): UserModel
 }
 
 type TotpModel {

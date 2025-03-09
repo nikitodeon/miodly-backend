@@ -7,13 +7,19 @@ import {
 	Resolver,
 	Subscription
 } from '@nestjs/graphql'
+import { ApolloError } from 'apollo-server-express'
 import { Request } from 'express'
 import { PubSub } from 'graphql-subscriptions'
 import * as GraphQLUpload from 'graphql-upload/GraphQLUpload.js'
+import * as Upload from 'graphql-upload/Upload.js'
 import { GraphQLErrorFilter } from 'src/filters/custom-exception.filter'
 import { UserModel } from 'src/modules/auth/account/models/user.model'
 import { UserService } from 'src/modules/user/user.service'
 import { GqlAuthGuard } from 'src/shared/guards/gql-auth.guard'
+
+import { MessageFileValidationPipe } from '@/src/shared/pipes/message-file-validation.pipe'
+
+// import { FileValidationPipe } from '@/src/shared/pipes/file-validation.pipe'
 
 import { ChatroomService } from './chatroom.service'
 import { Chatroom, Message } from './chatroom.types'
@@ -45,7 +51,7 @@ export class ChatroomResolver {
 	})
 	userStartedTyping(
 		@Args('chatroomId') chatroomId: number,
-		@Args('userId') userId: number
+		@Args('userId') userId: string
 	) {
 		return this.pubSub.asyncIterableIterator(
 			`userStartedTyping.${chatroomId}`
@@ -61,7 +67,7 @@ export class ChatroomResolver {
 	})
 	userStoppedTyping(
 		@Args('chatroomId') chatroomId: number,
-		@Args('userId') userId: number
+		@Args('userId') userId: string
 	) {
 		return this.pubSub.asyncIterableIterator(
 			`userStoppedTyping.${chatroomId}`
@@ -113,11 +119,35 @@ export class ChatroomResolver {
 		@Args('chatroomId') chatroomId: number,
 		@Args('content') content: string,
 		@Context() context: { req: Request },
-		@Args('image', { type: () => GraphQLUpload, nullable: true })
-		image?: GraphQLUpload
+		// @Args('image', { type: () => GraphQLUpload, nullable: true })
+		// image?: GraphQLUpload
+		// @Args('avatar', { type: () => GraphQLUpload }, FileValidationPipe)
+		// 		avatar: Upload
+		@Args(
+			'file',
+			{ type: () => GraphQLUpload, nullable: true },
+			MessageFileValidationPipe
+		)
+		file?: Upload
 	) {
 		let imagePath: string | null = null
-		if (image) imagePath = await this.chatroomService.saveImage(image)
+		// if (image) imagePath = await this.chatroomService.saveImage(image)
+		if (
+			file &&
+			file.promise &&
+			typeof file.createReadStream === 'function'
+		) {
+			console.log('file received:', file)
+
+			// Преобразование файла, если он был передан
+			try {
+				imagePath = await this.chatroomService.saveImage(file)
+			} catch (error) {
+				console.log('Error saving image:', error)
+				throw new ApolloError('Ошибка при сохранении изображения')
+			}
+		}
+
 		if (!context.req.user) {
 			throw new Error('User is not authenticated')
 		}
