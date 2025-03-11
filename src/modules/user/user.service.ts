@@ -62,9 +62,14 @@ export class UserService {
 	async getUsersOfChatroom(chatroomId: number) {
 		return this.prisma.user.findMany({
 			where: {
-				chatrooms: {
+				// chatrooms: {
+				// 	some: {
+				// 		id: chatroomId
+				// 	}
+				// }
+				ChatroomUsers: {
 					some: {
-						id: chatroomId
+						chatroomId: chatroomId
 					}
 				}
 			},

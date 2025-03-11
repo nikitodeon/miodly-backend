@@ -157,7 +157,8 @@ exports.Prisma.ChatroomUsersScalarFieldEnum = {
   chatroomId: 'chatroomId',
   userId: 'userId',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  role: 'role'
 };
 
 exports.Prisma.SocialLinkScalarFieldEnum = {
@@ -213,6 +214,11 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+exports.ChatroomRole = exports.$Enums.ChatroomRole = {
+  ADMIN: 'ADMIN',
+  USER: 'USER'
+};
+
 exports.NotificationType = exports.$Enums.NotificationType = {
   ENABLE_TWO_FACTOR: 'ENABLE_TWO_FACTOR'
 };

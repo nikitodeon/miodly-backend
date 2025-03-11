@@ -17,8 +17,10 @@ export class Chatroom {
 	@Field({ nullable: true })
 	updatedAt?: Date
 
-	@Field(() => [UserModel], { nullable: true }) // array of user IDs
-	users?: UserModel[]
+	// @Field(() => [UserModel], { nullable: true }) // array of user IDs
+	// users?: UserModel[]
+	@Field(() => [ChatroomUsers], { nullable: true })
+	ChatroomUsers?: ChatroomUsers[]
 
 	@Field(() => [Message], { nullable: true }) // array of message IDs
 	messages?: Message[]
@@ -59,3 +61,22 @@ export class UserTyping {
 
 @ObjectType()
 export class UserStoppedTyping extends UserTyping {}
+
+///////////////////////////////
+@ObjectType()
+export class ChatroomUsers {
+	@Field(() => ID)
+	chatroomId: number
+
+	@Field(() => ID)
+	userId: string
+
+	@Field(() => UserModel)
+	user: UserModel
+
+	@Field(() => Chatroom)
+	chatroom: Chatroom
+
+	@Field({ nullable: true })
+	role?: string // роль пользователя в чате (ADMIN, USER)
+}

@@ -5,6 +5,8 @@ import * as Upload from 'graphql-upload/Upload.js'
 import * as sharp from 'sharp'
 import { PrismaService } from 'src/core/prisma/prisma.service'
 
+import { ChatroomRole } from '@/prisma/generated'
+
 import { StorageService } from '../libs/storage/storage.service'
 
 import { Message } from './chatroom.types'
@@ -37,10 +39,14 @@ export class ChatroomService {
 		return this.prisma.chatroom.create({
 			data: {
 				name,
-				users: {
-					connect: {
-						id: sub
-					}
+				// users: {
+				ChatroomUsers: {
+					create: [
+						{
+							userId: sub,
+							role: 'ADMIN'
+						}
+					]
 				}
 			}
 		})
@@ -57,46 +63,71 @@ export class ChatroomService {
 				chatroomId: 'Chatroom does not exist'
 			})
 		}
-
+		const chatroomUsersData = userIds.map(userId => ({
+			// userId,
+			user: {
+				connect: { id: userId } // Используем connect для связи с существующим пользователем
+			},
+			role: ChatroomRole.USER // Роль для новых пользователей - USER
+		}))
 		return await this.prisma.chatroom.update({
 			where: {
 				id: chatroomId
 			},
 			data: {
-				users: {
-					connect: userIds.map(id => ({ id: id }))
+				// users: {
+				// 	connect: userIds.map(id => ({ id: id }))
+				// }
+				ChatroomUsers: {
+					create: chatroomUsersData
 				}
 			},
 			include: {
-				users: true // Eager loading users
+				// users: true // Eager loading users
+				ChatroomUsers: true
 			}
 		})
 	}
 	async getChatroomsForUser(userId: string) {
 		return this.prisma.chatroom.findMany({
 			where: {
-				users: {
-					some: {
-						id: userId
-					}
+				ChatroomUsers: {
+					some: { userId: userId }
 				}
 			},
 			include: {
-				users: {
-					orderBy: {
-						createdAt: 'desc'
-					}
-				}, // Eager loading users
-
 				messages: {
 					take: 1,
-					orderBy: {
-						createdAt: 'desc'
+					orderBy: { createdAt: 'desc' },
+					select: {
+						id: true,
+						content: true,
+						createdAt: true,
+						user: {
+							select: {
+								id: true,
+								username: true
+							}
+						}
+					}
+				},
+				ChatroomUsers: {
+					select: {
+						role: true, // Добавляем роль пользователя
+						user: {
+							select: {
+								id: true,
+								username: true,
+								email: true,
+								avatar: true
+							}
+						}
 					}
 				}
 			}
 		})
 	}
+
 	async sendMessage(
 		chatroomId: number,
 		message: string,
@@ -112,8 +143,15 @@ export class ChatroomService {
 			},
 			include: {
 				chatroom: {
+					// include: {
+					// 	users: true // Eager loading users
+					// }
 					include: {
-						users: true // Eager loading users
+						ChatroomUsers: {
+							include: {
+								user: true // Включаем информацию о пользователе, связанного с чатрумом
+							}
+						}
 					}
 				}, // Eager loading Chatroom
 				user: true // Eager loading User
@@ -208,11 +246,16 @@ export class ChatroomService {
 			include: {
 				chatroom: {
 					include: {
-						users: {
-							orderBy: {
-								createdAt: 'asc'
+						ChatroomUsers: {
+							include: {
+								user: true // Включаем информацию о пользователе, связанном с этим чатом
 							}
-						} // Eager loading users
+						}
+						// users: {
+						// orderBy: {
+						// createdAt: 'asc'
+						// 	}
+						// } // Eager loading users
 					}
 				}, // Eager loading Chatroom
 				user: true // Eager loading User

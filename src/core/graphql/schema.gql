@@ -33,12 +33,20 @@ input ChangeProfileInfoInput {
 }
 
 type Chatroom {
+  ChatroomUsers: [ChatroomUsers!]
   createdAt: DateTime
   id: ID
   messages: [Message!]
   name: String
   updatedAt: DateTime
-  users: [UserModel!]
+}
+
+type ChatroomUsers {
+  chatroom: Chatroom!
+  chatroomId: ID!
+  role: String
+  user: UserModel!
+  userId: ID!
 }
 
 input CreateUserInput {

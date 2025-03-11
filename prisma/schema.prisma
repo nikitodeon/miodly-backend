@@ -37,7 +37,7 @@ model User {
   notificationSettings NotificationSettings?
 
 /////////////////////
-chatrooms       Chatroom[]      @relation("ChatroomUsers")
+// chatrooms       Chatroom[]      @relation("ChatroomUsers")
   messages        Message[]
   ChatroomUsers   ChatroomUsers[]
 ///////////////
@@ -53,9 +53,10 @@ model Chatroom {
   name          String
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
-  users         User[]          @relation("ChatroomUsers")
+  // users         User[]          @relation("ChatroomUsers")
   messages      Message[]
   ChatroomUsers ChatroomUsers[]
+   
 }
 
 model Message {
@@ -68,6 +69,7 @@ model Message {
   updatedAt  DateTime @updatedAt
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   chatroom   Chatroom @relation(fields: [chatroomId], references: [id], onDelete: Cascade)
+  
 }
 
 model ChatroomUsers {
@@ -77,6 +79,9 @@ model ChatroomUsers {
   updatedAt  DateTime @updatedAt
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   chatroom   Chatroom @relation(fields: [chatroomId], references: [id], onDelete: Cascade)
+    role       ChatroomRole @default(USER)
+
+  
 
   @@id([chatroomId, userId])
 }
@@ -159,4 +164,8 @@ enum NotificationType {
  
 
   @@map("notification_types")
+}
+enum ChatroomRole {
+  ADMIN
+  USER
 }
