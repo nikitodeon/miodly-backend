@@ -7,6 +7,10 @@ type AuthModel {
   user: UserModel
 }
 
+input ChangeChatnameInput {
+  name: String!
+}
+
 input ChangeEmailInput {
   email: String!
 }
@@ -102,6 +106,7 @@ type Message {
 
 type Mutation {
   addUsersToChatroom(chatroomId: Float!, userIds: [String!]!): Chatroom!
+  changeChatName(chatroomId: Float!, data: ChangeChatnameInput!): Chatroom!
   changeEmail(data: ChangeEmailInput!): Boolean!
   changeNotificationsSettings(data: ChangeNotificationsSettingsInput!): ChangeNotificationsSettingsResponse!
   changePassword(data: ChangePasswordInput!): Boolean!

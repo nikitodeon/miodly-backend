@@ -9,7 +9,8 @@ import { ChatroomRole } from '@/prisma/generated'
 
 import { StorageService } from '../libs/storage/storage.service'
 
-import { Message } from './chatroom.types'
+import { Chatroom, Message } from './chatroom.types'
+import { ChangeChatnameInput } from './inputs/change-chatname.input'
 
 @Injectable()
 export class ChatroomService {
@@ -278,6 +279,19 @@ export class ChatroomService {
 		return this.prisma.chatroom.delete({
 			where: {
 				id: chatroomId
+			}
+		})
+	}
+
+	async changeChatName(chatroomId: number, input: ChangeChatnameInput) {
+		const { name } = input
+
+		return this.prisma.chatroom.update({
+			where: {
+				id: chatroomId
+			},
+			data: {
+				name
 			}
 		})
 	}

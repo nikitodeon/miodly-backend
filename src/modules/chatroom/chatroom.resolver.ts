@@ -23,6 +23,7 @@ import { MessageFileValidationPipe } from '@/src/shared/pipes/message-file-valid
 
 import { ChatroomService } from './chatroom.service'
 import { Chatroom, Message } from './chatroom.types'
+import { ChangeChatnameInput } from './inputs/change-chatname.input'
 
 @Resolver()
 export class ChatroomResolver {
@@ -205,5 +206,13 @@ export class ChatroomResolver {
 	async deleteChatroom(@Args('chatroomId') chatroomId: number) {
 		await this.chatroomService.deleteChatroom(chatroomId)
 		return 'Chatroom deleted successfully'
+	}
+
+	@Mutation(() => Chatroom, { name: 'changeChatName' })
+	async changeChatName(
+		@Args('chatroomId') chatroomId: number,
+		@Args('data') input: ChangeChatnameInput
+	) {
+		return this.chatroomService.changeChatName(chatroomId, input)
 	}
 }
