@@ -135,29 +135,27 @@ export class ChatroomService {
 		userId: string,
 		filename: string | null
 	) {
-		return await this.prisma.message.create({
+		const newMessage = await this.prisma.message.create({
 			data: {
-				content: message,
-				imageUrl: filename || '',
+				content: message, // Текст сообщения
+				imageUrl: filename || '', // Ссылка на файл (если есть)
 				chatroomId,
 				userId
 			},
 			include: {
 				chatroom: {
-					// include: {
-					// 	users: true // Eager loading users
-					// }
 					include: {
 						ChatroomUsers: {
 							include: {
-								user: true // Включаем информацию о пользователе, связанного с чатрумом
+								user: true // Включаем информацию о пользователе, связанном с чатрумом
 							}
 						}
 					}
-				}, // Eager loading Chatroom
-				user: true // Eager loading User
+				},
+				user: true // Включаем информацию о пользователе, который отправил сообщение
 			}
 		})
+		return newMessage
 	}
 
 	// async saveImage(image: {

@@ -221,7 +221,7 @@ input SocialLinkOrderInput {
 
 type Subscription {
   liveUsersInChatroom(chatroomId: Int!): [UserModel!]
-  newMessage(chatroomId: Float!): Message
+  newMessage(chatroomId: Float!, userId: String!): Message!
   userStartedTyping(chatroomId: Float!, userId: String!): UserModel
   userStoppedTyping(chatroomId: Float!, userId: String!): UserModel
 }

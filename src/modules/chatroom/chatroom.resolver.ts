@@ -17,6 +17,7 @@ import { UserModel } from 'src/modules/auth/account/models/user.model'
 import { UserService } from 'src/modules/user/user.service'
 import { GqlAuthGuard } from 'src/shared/guards/gql-auth.guard'
 
+import { PrismaService } from '@/src/core/prisma/prisma.service'
 import { MessageFileValidationPipe } from '@/src/shared/pipes/message-file-validation.pipe'
 
 // import { FileValidationPipe } from '@/src/shared/pipes/file-validation.pipe'
@@ -30,17 +31,23 @@ export class ChatroomResolver {
 	public pubSub: PubSub
 	constructor(
 		private readonly chatroomService: ChatroomService,
-		private readonly userService: UserService
+		private readonly userService: UserService,
+		private readonly prisma: PrismaService
 	) {
 		this.pubSub = new PubSub()
 	}
 
-	@Subscription(returns => Message, {
-		nullable: true,
-		resolve: value => value.newMessage
+	@Subscription(() => Message, {
+		filter: (payload, variables) => {
+			// Проверка: если новое сообщение пришло в чат, в котором находится подписчик
+			return payload.newMessage.chatroom.id === variables.chatroomId
+		}
 	})
-	newMessage(@Args('chatroomId') chatroomId: number) {
-		return this.pubSub.asyncIterableIterator(`newMessage.${chatroomId}`)
+	newMessage(
+		@Args('userId') userId: string,
+		@Args('chatroomId') chatroomId: number
+	) {
+		return this.pubSub.asyncIterableIterator(`newMessage.${userId}`)
 	}
 	@Subscription(() => UserModel, {
 		nullable: true,
@@ -159,15 +166,27 @@ export class ChatroomResolver {
 			context.req.user.id,
 			imagePath || ''
 		)
-		await this.pubSub
-			.publish(`newMessage.${chatroomId}`, { newMessage })
-			.then(res => {
-				console.log('published', res)
-			})
-			.catch(err => {
-				console.log('err', err)
-			})
+		// await this.pubSub
+		// 	.publish(`newMessage.${chatroomId}`, { newMessage })
+		const chatroomUsers = await this.prisma.chatroomUsers.findMany({
+			where: { chatroomId },
+			select: { userId: true }
+		})
 
+		try {
+			// Параллельно публикуем сообщения всем пользователям чата
+			await Promise.all(
+				chatroomUsers.map(user =>
+					this.pubSub.publish(`newMessage.${user.userId}`, {
+						newMessage,
+						userId: user.userId
+					})
+				)
+			)
+			console.log('Messages published successfully')
+		} catch (err) {
+			console.error('Error publishing messages:', err)
+		}
 		return newMessage
 	}
 
