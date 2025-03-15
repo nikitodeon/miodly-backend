@@ -128,6 +128,7 @@ type Mutation {
   removeProfileAvatar: Boolean!
   removeSession(id: String!): Boolean!
   removeSocialLink(id: String!): Boolean!
+  removeUsersFromChatroom(chatroomId: Float!, userIds: [String!]!): Chatroom!
   reorderSocialLinks(list: [SocialLinkOrderInput!]!): Boolean!
   resetPassword(data: ResetPasswordInput!): Boolean!
   sendMessage(chatroomId: Float!, content: String!, file: Upload): Message!
@@ -222,6 +223,7 @@ input SocialLinkOrderInput {
 type Subscription {
   liveUsersInChatroom(chatroomId: Int!): [UserModel!]
   newMessage(chatroomId: Float!, userId: String!): Message!
+  newMessageForAllChats(userId: String!): Message!
   userStartedTyping(chatroomId: Float!, userId: String!): UserModel
   userStoppedTyping(chatroomId: Float!, userId: String!): UserModel
 }

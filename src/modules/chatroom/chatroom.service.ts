@@ -89,6 +89,34 @@ export class ChatroomService {
 			}
 		})
 	}
+
+	async removeUsersFromChatroom(chatroomId: number, userIds: string[]) {
+		const existingChatroom = await this.prisma.chatroom.findUnique({
+			where: { id: chatroomId }
+		})
+
+		if (!existingChatroom) {
+			throw new BadRequestException({
+				chatroomId: 'Chatroom does not exist'
+			})
+		}
+
+		return await this.prisma.chatroom.update({
+			where: { id: chatroomId },
+			data: {
+				ChatroomUsers: {
+					deleteMany: userIds.map(userId => ({
+						userId,
+						chatroomId
+					}))
+				}
+			},
+			include: {
+				ChatroomUsers: true
+			}
+		})
+	}
+
 	async getChatroomsForUser(userId: string) {
 		return this.prisma.chatroom.findMany({
 			where: {

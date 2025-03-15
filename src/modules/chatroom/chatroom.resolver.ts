@@ -49,6 +49,21 @@ export class ChatroomResolver {
 	) {
 		return this.pubSub.asyncIterableIterator(`newMessage.${userId}`)
 	}
+	/////////////////////////////////
+	@Subscription(() => Message, {
+		filter: (payload, variables) => {
+			// Проверка: если новое сообщение пришло в любой из чатов пользователя
+			return payload.newMessage.chatroom.users.some(
+				user => user.id === variables.userId
+			)
+		}
+	})
+	newMessageForAllChats(@Args('userId') userId: string) {
+		return this.pubSub.asyncIterableIterator(
+			`newMessageForAllChats.${userId}`
+		)
+	}
+	/////////////////////////////
 	@Subscription(() => UserModel, {
 		nullable: true,
 		resolve: value => value.user,
@@ -183,6 +198,12 @@ export class ChatroomResolver {
 					})
 				)
 			)
+			await this.pubSub.publish(
+				`newMessageForAllChats.${context.req.user.id}`,
+				{
+					newMessage
+				}
+			)
 			console.log('Messages published successfully')
 		} catch (err) {
 			console.error('Error publishing messages:', err)
@@ -210,6 +231,14 @@ export class ChatroomResolver {
 		@Args('userIds', { type: () => [String] }) userIds: string[]
 	) {
 		return this.chatroomService.addUsersToChatroom(chatroomId, userIds)
+	}
+
+	@Mutation(() => Chatroom)
+	async removeUsersFromChatroom(
+		@Args('chatroomId') chatroomId: number,
+		@Args('userIds', { type: () => [String] }) userIds: string[]
+	) {
+		return this.chatroomService.removeUsersFromChatroom(chatroomId, userIds)
 	}
 
 	@Query(() => [Chatroom])
