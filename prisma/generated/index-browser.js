@@ -216,7 +216,8 @@ exports.Prisma.NullsOrder = {
 };
 exports.ChatroomRole = exports.$Enums.ChatroomRole = {
   ADMIN: 'ADMIN',
-  USER: 'USER'
+  USER: 'USER',
+  MODERATOR: 'MODERATOR'
 };
 
 exports.NotificationType = exports.$Enums.NotificationType = {

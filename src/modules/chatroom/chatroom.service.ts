@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common'
+import {
+	BadRequestException,
+	ForbiddenException,
+	Injectable
+} from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { createWriteStream } from 'fs'
 import * as Upload from 'graphql-upload/Upload.js'
@@ -320,5 +324,124 @@ export class ChatroomService {
 				name
 			}
 		})
+	}
+
+	async promoteUsers(
+		adminId: string,
+		chatroomId: number,
+		targetUserIds: string[]
+	) {
+		// Проверяем, является ли запрашивающий пользователь админом
+		const admin = await this.prisma.chatroomUsers.findFirst({
+			where: { userId: adminId, chatroomId, role: ChatroomRole.ADMIN }
+		})
+
+		if (!admin) {
+			throw new ForbiddenException(
+				'Только администратор может повышать роли.'
+			)
+		}
+
+		// Получаем текущие роли пользователей
+		const targetUsers = await this.prisma.chatroomUsers.findMany({
+			where: { chatroomId, userId: { in: targetUserIds } },
+			select: { userId: true, role: true }
+		})
+
+		if (targetUsers.length === 0) {
+			throw new BadRequestException(
+				'Ни один из указанных пользователей не найден в чате.'
+			)
+		}
+
+		// Создаём массив обновлений
+		const updates = targetUsers
+			.map(user => {
+				let newRole: ChatroomRole | undefined
+				if (user.role === ChatroomRole.USER) {
+					newRole = ChatroomRole.MODERATOR
+				} else if (user.role === ChatroomRole.MODERATOR) {
+					newRole = ChatroomRole.ADMIN
+				}
+				// Если роль не меняется (например, уже ADMIN), возвращаем undefined
+				if (!newRole) return undefined
+
+				// Возвращаем обновление только если есть новая роль
+				return this.prisma.chatroomUsers.update({
+					where: {
+						chatroomId_userId: { chatroomId, userId: user.userId }
+					},
+					data: { role: newRole }
+				})
+			})
+			.filter(update => update !== undefined) // Убираем undefined (пользователей с ролью ADMIN)
+
+		// Выполняем обновления параллельно
+		if (updates.length === 0) {
+			return 'Нет пользователей для повышения.'
+		}
+
+		await this.prisma.$transaction(updates) // Все операции в транзакции
+
+		return `Повышены ${updates.length} пользователей.`
+	}
+	async demoteUsers(
+		adminId: string,
+		chatroomId: number,
+		targetUserIds: string[]
+	) {
+		// Проверяем, является ли запрашивающий пользователь администратором
+		const admin = await this.prisma.chatroomUsers.findFirst({
+			where: { userId: adminId, chatroomId, role: ChatroomRole.ADMIN }
+		})
+
+		if (!admin) {
+			throw new ForbiddenException(
+				'Только администратор может понижать роли.'
+			)
+		}
+
+		// Получаем текущие роли пользователей
+		const targetUsers = await this.prisma.chatroomUsers.findMany({
+			where: { chatroomId, userId: { in: targetUserIds } },
+			select: { userId: true, role: true }
+		})
+
+		if (targetUsers.length === 0) {
+			throw new BadRequestException(
+				'Ни один из указанных пользователей не найден в чате.'
+			)
+		}
+
+		// Создаём массив обновлений
+		const updates = targetUsers
+			.map(user => {
+				let newRole: ChatroomRole | undefined
+				if (user.role === ChatroomRole.ADMIN) {
+					newRole = ChatroomRole.MODERATOR
+				} else if (user.role === ChatroomRole.MODERATOR) {
+					newRole = ChatroomRole.USER
+				}
+				// Если роль не меняется (например, уже USER), возвращаем undefined
+				if (!newRole) return undefined
+
+				// Возвращаем обновление только если есть новая роль
+				return this.prisma.chatroomUsers.update({
+					where: {
+						chatroomId_userId: { chatroomId, userId: user.userId }
+					},
+					data: { role: newRole }
+				})
+			})
+			.filter(update => update !== undefined) // Убираем undefined (пользователей с ролью USER)
+
+		// Выполняем обновления параллельно
+		if (updates.length === 0) {
+			return 'Нет пользователей для понижения.'
+		}
+
+		await this.prisma.$transaction(updates) // Все операции в транзакции
+
+		return `Понижены ${updates.length} пользователей.`
 	}
 }

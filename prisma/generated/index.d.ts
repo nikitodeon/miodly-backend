@@ -77,7 +77,8 @@ export type NotificationType = (typeof NotificationType)[keyof typeof Notificati
 
 export const ChatroomRole: {
   ADMIN: 'ADMIN',
-  USER: 'USER'
+  USER: 'USER',
+  MODERATOR: 'MODERATOR'
 };
 
 export type ChatroomRole = (typeof ChatroomRole)[keyof typeof ChatroomRole]

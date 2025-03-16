@@ -133,6 +133,8 @@ type Mutation {
   resetPassword(data: ResetPasswordInput!): Boolean!
   sendMessage(chatroomId: Float!, content: String!, file: Upload): Message!
   updateSocialLink(data: SocialLinkInput!, id: String!): Boolean!
+  updateUsersRoles(data: UpdateUsersRolesInput!): String!
+  updateUsersRolesForDemotion(data: UpdateUsersRolesInput!): String!
   userStartedTypingMutation(chatroomId: Float!): UserModel!
   userStoppedTypingMutation(chatroomId: Float!): UserModel!
   verifyAccount(data: VerificationInput!): AuthModel!
@@ -231,6 +233,11 @@ type Subscription {
 type TotpModel {
   qrcodeUrl: String!
   secret: String!
+}
+
+input UpdateUsersRolesInput {
+  chatroomId: Float!
+  targetUserIds: [String!]!
 }
 
 """The `Upload` scalar type represents a file upload."""

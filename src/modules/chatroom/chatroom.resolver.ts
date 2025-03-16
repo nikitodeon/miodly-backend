@@ -17,6 +17,7 @@ import { UserModel } from 'src/modules/auth/account/models/user.model'
 import { UserService } from 'src/modules/user/user.service'
 import { GqlAuthGuard } from 'src/shared/guards/gql-auth.guard'
 
+import { ChatroomRole } from '@/prisma/generated'
 import { PrismaService } from '@/src/core/prisma/prisma.service'
 import { MessageFileValidationPipe } from '@/src/shared/pipes/message-file-validation.pipe'
 
@@ -25,6 +26,7 @@ import { MessageFileValidationPipe } from '@/src/shared/pipes/message-file-valid
 import { ChatroomService } from './chatroom.service'
 import { Chatroom, Message } from './chatroom.types'
 import { ChangeChatnameInput } from './inputs/change-chatname.input'
+import { UpdateUsersRolesInput } from './inputs/chatroom-role.input'
 
 @Resolver()
 export class ChatroomResolver {
@@ -262,5 +264,42 @@ export class ChatroomResolver {
 		@Args('data') input: ChangeChatnameInput
 	) {
 		return this.chatroomService.changeChatName(chatroomId, input)
+	}
+
+	@UseGuards(GqlAuthGuard)
+	@Mutation(() => String)
+	async updateUsersRoles(
+		@Args('data') data: UpdateUsersRolesInput, // Получаем входные данные
+		@Context() context: { req: Request } // Получаем контекст с текущим пользователем
+	) {
+		// Проверяем, аутентифицирован ли пользователь
+		if (!context.req.user) {
+			throw new Error('Пользователь не аутентифицирован')
+		}
+
+		// Вызываем метод promoteUsers, чтобы повысить нескольких пользователей
+		return await this.chatroomService.promoteUsers(
+			context.req.user.id, // adminId — это текущий пользователь
+			data.chatroomId, // chatroomId — чат, в котором происходит повышение
+			data.targetUserIds // targetUserIds — массив пользователей, которых нужно повысить
+		)
+	}
+	@UseGuards(GqlAuthGuard)
+	@Mutation(() => String)
+	async updateUsersRolesForDemotion(
+		@Args('data') data: UpdateUsersRolesInput, // Получаем входные данные
+		@Context() context: { req: Request } // Получаем контекст с текущим пользователем
+	) {
+		// Проверяем, аутентифицирован ли пользователь
+		if (!context.req.user) {
+			throw new Error('Пользователь не аутентифицирован')
+		}
+
+		// Вызываем метод demoteUsers, чтобы понизить нескольких пользователей
+		return await this.chatroomService.demoteUsers(
+			context.req.user.id, // adminId — это текущий пользователь
+			data.chatroomId, // chatroomId — чат, в котором происходит понижение
+			data.targetUserIds // targetUserIds — массив пользователей, которых нужно понизить
+		)
 	}
 }
