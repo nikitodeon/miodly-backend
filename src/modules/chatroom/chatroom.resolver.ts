@@ -24,7 +24,7 @@ import { MessageFileValidationPipe } from '@/src/shared/pipes/message-file-valid
 // import { FileValidationPipe } from '@/src/shared/pipes/file-validation.pipe'
 
 import { ChatroomService } from './chatroom.service'
-import { Chatroom, Message } from './chatroom.types'
+import { Chatroom, Message, UpdateUsersRolesResponse } from './chatroom.types'
 import { ChangeChatnameInput } from './inputs/change-chatname.input'
 import { UpdateUsersRolesInput } from './inputs/chatroom-role.input'
 
@@ -54,17 +54,17 @@ export class ChatroomResolver {
 	/////////////////////////////////
 	@Subscription(() => Message, {
 		filter: (payload, variables) => {
-			// Проверка: если новое сообщение пришло в любой из чатов пользователя
-			return payload.newMessage.chatroom.users.some(
+			// Проверяем, что сообщение пришло в чат, где есть пользователь
+			return payload.newMessageForAllChats.chatroom.users.some(
 				user => user.id === variables.userId
 			)
-		}
+		},
+		resolve: payload => payload.newMessageForAllChats
 	})
 	newMessageForAllChats(@Args('userId') userId: string) {
-		return this.pubSub.asyncIterableIterator(
-			`newMessageForAllChats.${userId}`
-		)
+		return this.pubSub.asyncIterableIterator(`newMessageForAllChats`)
 	}
+
 	/////////////////////////////
 	@Subscription(() => UserModel, {
 		nullable: true,
@@ -183,6 +183,9 @@ export class ChatroomResolver {
 			context.req.user.id,
 			imagePath || ''
 		)
+		/////////
+
+		//////////
 		// await this.pubSub
 		// 	.publish(`newMessage.${chatroomId}`, { newMessage })
 		const chatroomUsers = await this.prisma.chatroomUsers.findMany({
@@ -200,16 +203,24 @@ export class ChatroomResolver {
 					})
 				)
 			)
-			await this.pubSub.publish(
-				`newMessageForAllChats.${context.req.user.id}`,
-				{
+			const chatroomUsersForAll =
+				await this.prisma.chatroomUsers.findMany({
+					where: { chatroomId },
+					select: { userId: true }
+				})
+
+			for (const { userId: memberId } of chatroomUsersForAll) {
+				await this.pubSub.publish(`newMessageForAllChats.${memberId}`, {
 					newMessage
-				}
-			)
-			console.log('Messages published successfully')
+				})
+			}
 		} catch (err) {
-			console.error('Error publishing messages:', err)
+			console.error('Ошибка публикации:', err)
 		}
+		await this.pubSub.publish(`newMessageForAllChats`, {
+			newMessageForAllChats: newMessage
+		})
+
 		return newMessage
 	}
 
@@ -267,23 +278,27 @@ export class ChatroomResolver {
 	}
 
 	@UseGuards(GqlAuthGuard)
-	@Mutation(() => String)
+	@Mutation(() => UpdateUsersRolesResponse)
 	async updateUsersRoles(
-		@Args('data') data: UpdateUsersRolesInput, // Получаем входные данные
-		@Context() context: { req: Request } // Получаем контекст с текущим пользователем
+		@Args('data') data: UpdateUsersRolesInput,
+		@Context() context: { req: Request }
 	) {
-		// Проверяем, аутентифицирован ли пользователь
 		if (!context.req.user) {
 			throw new Error('Пользователь не аутентифицирован')
 		}
 
-		// Вызываем метод promoteUsers, чтобы повысить нескольких пользователей
-		return await this.chatroomService.promoteUsers(
-			context.req.user.id, // adminId — это текущий пользователь
-			data.chatroomId, // chatroomId — чат, в котором происходит повышение
-			data.targetUserIds // targetUserIds — массив пользователей, которых нужно повысить
-		)
+		try {
+			return await this.chatroomService.promoteUsers(
+				context.req.user.id,
+				data.chatroomId,
+				data.targetUserIds
+			)
+		} catch (error) {
+			// Преобразуем все ошибки в GraphQL-совместимый формат
+			throw new ApolloError(error.message)
+		}
 	}
+
 	@UseGuards(GqlAuthGuard)
 	@Mutation(() => String)
 	async updateUsersRolesForDemotion(

@@ -1,7 +1,9 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql'
+import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql'
 
 // import { User } from 'src/user/user.type';
 import { UserModel } from '../auth/account/models/user.model'
+
+import { ChatroomRole } from './inputs/chatroom-role.enum'
 
 @ObjectType()
 export class Chatroom {
@@ -79,4 +81,19 @@ export class ChatroomUsers {
 
 	@Field({ nullable: true })
 	role?: string // роль пользователя в чате (ADMIN, USER)
+}
+
+@ObjectType()
+export class UpdatedUserRole {
+	@Field(() => ID)
+	userId: string
+
+	@Field(() => String)
+	role: string
+}
+
+@ObjectType()
+export class UpdateUsersRolesResponse {
+	@Field(() => [UpdatedUserRole])
+	updatedUsers: UpdatedUserRole[]
 }

@@ -9,11 +9,11 @@ import * as Upload from 'graphql-upload/Upload.js'
 import * as sharp from 'sharp'
 import { PrismaService } from 'src/core/prisma/prisma.service'
 
-import { ChatroomRole } from '@/prisma/generated'
+import { ChatroomRole, ChatroomUsers, Prisma } from '@/prisma/generated'
 
 import { StorageService } from '../libs/storage/storage.service'
 
-import { Chatroom, Message } from './chatroom.types'
+import { Chatroom, Message, UpdateUsersRolesResponse } from './chatroom.types'
 import { ChangeChatnameInput } from './inputs/change-chatname.input'
 
 @Injectable()
@@ -187,6 +187,7 @@ export class ChatroomService {
 				user: true // Включаем информацию о пользователе, который отправил сообщение
 			}
 		})
+
 		return newMessage
 	}
 
@@ -278,7 +279,8 @@ export class ChatroomService {
 				chatroom: {
 					include: {
 						ChatroomUsers: {
-							include: {
+							select: {
+								role: true,
 								user: true // Включаем информацию о пользователе, связанном с этим чатом
 							}
 						}
@@ -330,8 +332,8 @@ export class ChatroomService {
 		adminId: string,
 		chatroomId: number,
 		targetUserIds: string[]
-	) {
-		// Проверяем, является ли запрашивающий пользователь админом
+	): Promise<UpdateUsersRolesResponse> {
+		// Проверка админа
 		const admin = await this.prisma.chatroomUsers.findFirst({
 			where: { userId: adminId, chatroomId, role: ChatroomRole.ADMIN }
 		})
@@ -348,25 +350,21 @@ export class ChatroomService {
 			select: { userId: true, role: true }
 		})
 
+		// Всегда возвращаем объект с updatedUsers
 		if (targetUsers.length === 0) {
-			throw new BadRequestException(
-				'Ни один из указанных пользователей не найден в чате.'
-			)
+			return { updatedUsers: [] }
 		}
 
 		// Создаём массив обновлений
 		const updates = targetUsers
 			.map(user => {
 				let newRole: ChatroomRole | undefined
-				if (user.role === ChatroomRole.USER) {
+				if (user.role === ChatroomRole.USER)
 					newRole = ChatroomRole.MODERATOR
-				} else if (user.role === ChatroomRole.MODERATOR) {
+				else if (user.role === ChatroomRole.MODERATOR)
 					newRole = ChatroomRole.ADMIN
-				}
-				// Если роль не меняется (например, уже ADMIN), возвращаем undefined
-				if (!newRole) return undefined
+				if (!newRole) return null
 
-				// Возвращаем обновление только если есть новая роль
 				return this.prisma.chatroomUsers.update({
 					where: {
 						chatroomId_userId: { chatroomId, userId: user.userId }
@@ -374,16 +372,22 @@ export class ChatroomService {
 					data: { role: newRole }
 				})
 			})
-			.filter(update => update !== undefined) // Убираем undefined (пользователей с ролью ADMIN)
+			.filter(
+				(
+					update
+				): update is Prisma.Prisma__ChatroomUsersClient<ChatroomUsers> =>
+					update !== null
+			)
 
-		// Выполняем обновления параллельно
-		if (updates.length === 0) {
-			return 'Нет пользователей для повышения.'
+		const updatedUsers =
+			updates.length > 0 ? await this.prisma.$transaction(updates) : []
+
+		return {
+			updatedUsers: updatedUsers.map(user => ({
+				userId: user.userId,
+				role: user.role
+			}))
 		}
-
-		await this.prisma.$transaction(updates) // Все операции в транзакции
-
-		return `Повышены ${updates.length} пользователей.`
 	}
 	async demoteUsers(
 		adminId: string,
