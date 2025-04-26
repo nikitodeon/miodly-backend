@@ -279,7 +279,7 @@ export class ChatroomResolver {
 
 	@UseGuards(GqlAuthGuard)
 	@Mutation(() => UpdateUsersRolesResponse)
-	async updateUsersRoles(
+	async promoteUsersRoles(
 		@Args('data') data: UpdateUsersRolesInput,
 		@Context() context: { req: Request }
 	) {
@@ -300,21 +300,23 @@ export class ChatroomResolver {
 	}
 
 	@UseGuards(GqlAuthGuard)
-	@Mutation(() => String)
-	async updateUsersRolesForDemotion(
-		@Args('data') data: UpdateUsersRolesInput, // Получаем входные данные
-		@Context() context: { req: Request } // Получаем контекст с текущим пользователем
+	@Mutation(() => UpdateUsersRolesResponse) // Изменяем возвращаемый тип
+	async demoteUsersRoles(
+		@Args('data') data: UpdateUsersRolesInput,
+		@Context() context: { req: Request }
 	) {
-		// Проверяем, аутентифицирован ли пользователь
 		if (!context.req.user) {
 			throw new Error('Пользователь не аутентифицирован')
 		}
 
-		// Вызываем метод demoteUsers, чтобы понизить нескольких пользователей
-		return await this.chatroomService.demoteUsers(
-			context.req.user.id, // adminId — это текущий пользователь
-			data.chatroomId, // chatroomId — чат, в котором происходит понижение
-			data.targetUserIds // targetUserIds — массив пользователей, которых нужно понизить
-		)
+		try {
+			return await this.chatroomService.demoteUsers(
+				context.req.user.id,
+				data.chatroomId,
+				data.targetUserIds
+			)
+		} catch (error) {
+			throw new ApolloError(error.message)
+		}
 	}
 }

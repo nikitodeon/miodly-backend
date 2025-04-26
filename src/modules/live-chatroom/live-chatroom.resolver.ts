@@ -125,7 +125,9 @@ export class LiveChatroomResolver {
 		@Context() context: { req: Request }
 	) {
 		if (!context.req.user) {
-			throw new Error('User is not authenticated')
+			console.log('User is not authenticated')
+			// throw new Error('User is not authenticated')
+			return false
 		}
 
 		const user = await this.userService.getUser(context.req.user.id)

@@ -393,8 +393,9 @@ export class ChatroomService {
 		adminId: string,
 		chatroomId: number,
 		targetUserIds: string[]
-	) {
-		// Проверяем, является ли запрашивающий пользователь администратором
+	): Promise<UpdateUsersRolesResponse> {
+		// Изменяем возвращаемый тип
+		// Проверка админа
 		const admin = await this.prisma.chatroomUsers.findFirst({
 			where: { userId: adminId, chatroomId, role: ChatroomRole.ADMIN }
 		})
@@ -411,25 +412,21 @@ export class ChatroomService {
 			select: { userId: true, role: true }
 		})
 
+		// Всегда возвращаем объект с updatedUsers
 		if (targetUsers.length === 0) {
-			throw new BadRequestException(
-				'Ни один из указанных пользователей не найден в чате.'
-			)
+			return { updatedUsers: [] }
 		}
 
 		// Создаём массив обновлений
 		const updates = targetUsers
 			.map(user => {
 				let newRole: ChatroomRole | undefined
-				if (user.role === ChatroomRole.ADMIN) {
+				if (user.role === ChatroomRole.ADMIN)
 					newRole = ChatroomRole.MODERATOR
-				} else if (user.role === ChatroomRole.MODERATOR) {
+				else if (user.role === ChatroomRole.MODERATOR)
 					newRole = ChatroomRole.USER
-				}
-				// Если роль не меняется (например, уже USER), возвращаем undefined
-				if (!newRole) return undefined
+				if (!newRole) return null
 
-				// Возвращаем обновление только если есть новая роль
 				return this.prisma.chatroomUsers.update({
 					where: {
 						chatroomId_userId: { chatroomId, userId: user.userId }
@@ -437,15 +434,21 @@ export class ChatroomService {
 					data: { role: newRole }
 				})
 			})
-			.filter(update => update !== undefined) // Убираем undefined (пользователей с ролью USER)
+			.filter(
+				(
+					update
+				): update is Prisma.Prisma__ChatroomUsersClient<ChatroomUsers> =>
+					update !== null
+			)
 
-		// Выполняем обновления параллельно
-		if (updates.length === 0) {
-			return 'Нет пользователей для понижения.'
+		const updatedUsers =
+			updates.length > 0 ? await this.prisma.$transaction(updates) : []
+
+		return {
+			updatedUsers: updatedUsers.map(user => ({
+				userId: user.userId,
+				role: user.role
+			}))
 		}
-
-		await this.prisma.$transaction(updates) // Все операции в транзакции
-
-		return `Понижены ${updates.length} пользователей.`
 	}
 }
