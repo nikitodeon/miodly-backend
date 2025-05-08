@@ -1,11 +1,8 @@
 import {
 	BadRequestException,
 	ForbiddenException,
-	Inject,
 	Injectable
 } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
-import { createWriteStream } from 'fs'
 import * as Upload from 'graphql-upload/Upload.js'
 import * as sharp from 'sharp'
 import { PrismaService } from 'src/core/prisma/prisma.service'
@@ -14,14 +11,14 @@ import { ChatroomRole, ChatroomUsers, Prisma } from '@/prisma/generated'
 
 import { StorageService } from '../libs/storage/storage.service'
 
-import { Chatroom, Message, UpdateUsersRolesResponse } from './chatroom.types'
+import { UpdateUsersRolesResponse } from './chatroom.types'
 import { ChangeChatnameInput } from './inputs/change-chatname.input'
 
 @Injectable()
 export class ChatroomService {
 	constructor(
 		private readonly prisma: PrismaService,
-		private readonly configService: ConfigService,
+
 		private readonly storageService: StorageService
 	) {}
 
@@ -70,26 +67,21 @@ export class ChatroomService {
 			})
 		}
 		const chatroomUsersData = userIds.map(userId => ({
-			// userId,
 			user: {
-				connect: { id: userId } // Используем connect для связи с существующим пользователем
+				connect: { id: userId }
 			},
-			role: ChatroomRole.USER // Роль для новых пользователей - USER
+			role: ChatroomRole.USER
 		}))
 		return await this.prisma.chatroom.update({
 			where: {
 				id: chatroomId
 			},
 			data: {
-				// users: {
-				// 	connect: userIds.map(id => ({ id: id }))
-				// }
 				ChatroomUsers: {
 					create: chatroomUsersData
 				}
 			},
 			include: {
-				// users: true // Eager loading users
 				ChatroomUsers: true
 			}
 		})
@@ -147,7 +139,7 @@ export class ChatroomService {
 				},
 				ChatroomUsers: {
 					select: {
-						role: true, // Добавляем роль пользователя
+						role: true,
 						user: {
 							select: {
 								id: true,
@@ -170,8 +162,8 @@ export class ChatroomService {
 	) {
 		const newMessage = await this.prisma.message.create({
 			data: {
-				content: message, // Текст сообщения
-				imageUrl: filename || '', // Ссылка на файл (если есть)
+				content: message,
+				imageUrl: filename || '',
 				chatroomId,
 				userId
 			},
@@ -180,49 +172,19 @@ export class ChatroomService {
 					include: {
 						ChatroomUsers: {
 							include: {
-								user: true // Включаем информацию о пользователе, связанном с чатрумом
+								user: true
 							}
 						}
 					}
 				},
-				user: true // Включаем информацию о пользователе, который отправил сообщение
+				user: true
 			}
 		})
 
 		return newMessage
 	}
 
-	// async saveImage(image: {
-	// 	createReadStream: () => any
-	// 	filename: string
-	// 	mimetype: string
-	// }) {
-	// 	const validImageTypes = ['image/jpeg', 'image/png', 'image/gif']
-	// 	if (!validImageTypes.includes(image.mimetype)) {
-	// 		throw new BadRequestException({ image: 'Invalid image type' })
-	// 	}
-
-	// 	const imageName = `${Date.now()}-${image.filename}`
-	// 	const imagePath = `${this.configService.get('IMAGE_PATH')}/${imageName}`
-	// 	const stream = image.createReadStream()
-	// 	const outputPath = `public${imagePath}`
-	// 	const writeStream = createWriteStream(outputPath)
-	// 	stream.pipe(writeStream)
-
-	// 	await new Promise((resolve, reject) => {
-	// 		stream.on('end', resolve)
-	// 		stream.on('error', reject)
-	// 	})
-
-	// 	return imagePath
-	// }
-	////////////////////////////////////////
-
 	public async saveImage(file: Upload) {
-		// if (user.avatar) {
-		// 	await this.storageService.remove(user.avatar)
-		// }
-
 		const chunks: Buffer[] = []
 
 		for await (const chunk of file.createReadStream()) {
@@ -257,19 +219,7 @@ export class ChatroomService {
 			)
 		}
 		return fileName
-		// await this.prismaService.user.update({
-		// 	where: {
-		// 		id: user.id
-		// 	},
-		// 	data: {
-		// 		avatar: fileName
-		// 	}
-		// })
-
-		// return true
 	}
-
-	//////////////////////////////////////
 
 	async getMessagesForChatroom(chatroomId: number) {
 		return await this.prisma.message.findMany({
@@ -282,17 +232,12 @@ export class ChatroomService {
 						ChatroomUsers: {
 							select: {
 								role: true,
-								user: true // Включаем информацию о пользователе, связанном с этим чатом
+								user: true
 							}
 						}
-						// users: {
-						// orderBy: {
-						// createdAt: 'asc'
-						// 	}
-						// } // Eager loading users
 					}
-				}, // Eager loading Chatroom
-				user: true // Eager loading User
+				},
+				user: true
 			}
 		})
 	}

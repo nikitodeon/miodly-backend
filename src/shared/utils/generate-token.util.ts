@@ -51,11 +51,6 @@ export async function generateToken(
 		},
 		include: {
 			user: true
-			//  {
-			// 	include: {
-			// 		notificationSettings: true
-			// 	}
-			// }
 		}
 	})
 

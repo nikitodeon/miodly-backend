@@ -1,19 +1,11 @@
 import { Injectable } from '@nestjs/common'
-import Redis from 'ioredis'
 import { UserModel } from 'src/modules/auth/account/models/user.model'
 
 import { RedisService } from '@/src/core/redis/redis.service'
 
 @Injectable()
 export class LiveChatroomService {
-	// private redisClient: Redis
-
-	constructor(private readonly redisService: RedisService) {
-		// this.redisClient = new Redis({
-		// 	host: process.env.REDIS_HOST || 'localhost',
-		// 	port: parseInt(process.env.REDIS_PORT || '6379', 10)
-		// })
-	}
+	constructor(private readonly redisService: RedisService) {}
 
 	async addLiveUserToChatroom(
 		chatroomId: number,

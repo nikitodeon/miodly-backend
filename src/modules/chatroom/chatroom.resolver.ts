@@ -17,11 +17,8 @@ import { UserModel } from 'src/modules/auth/account/models/user.model'
 import { UserService } from 'src/modules/user/user.service'
 import { GqlAuthGuard } from 'src/shared/guards/gql-auth.guard'
 
-import { ChatroomRole } from '@/prisma/generated'
 import { PrismaService } from '@/src/core/prisma/prisma.service'
 import { MessageFileValidationPipe } from '@/src/shared/pipes/message-file-validation.pipe'
-
-// import { FileValidationPipe } from '@/src/shared/pipes/file-validation.pipe'
 
 import { ChatroomService } from './chatroom.service'
 import { Chatroom, Message, UpdateUsersRolesResponse } from './chatroom.types'
@@ -51,10 +48,9 @@ export class ChatroomResolver {
 	) {
 		return this.pubSub.asyncIterableIterator(`newMessage.${userId}`)
 	}
-	/////////////////////////////////
+
 	@Subscription(() => Message, {
 		filter: (payload, variables) => {
-			// Полная защита от undefined
 			if (!payload || typeof payload !== 'object') return false
 			if (!payload.newMessageForAllChats) return false
 			if (!payload.newMessageForAllChats.chatroom) return false
@@ -63,7 +59,6 @@ export class ChatroomResolver {
 				payload.newMessageForAllChats.chatroom.ChatroomUsers
 			if (!Array.isArray(chatroomUsers)) return false
 
-			// Альтернатива .some() с полной проверкой
 			for (const user of chatroomUsers) {
 				if (user?.user?.id === variables.userId) {
 					return true
@@ -77,7 +72,6 @@ export class ChatroomResolver {
 		return this.pubSub.asyncIterableIterator(`newMessageForAllChats`)
 	}
 
-	/////////////////////////////
 	@Subscription(() => UserModel, {
 		nullable: true,
 		resolve: value => value.user,
@@ -156,10 +150,7 @@ export class ChatroomResolver {
 		@Args('chatroomId') chatroomId: number,
 		@Args('content') content: string,
 		@Context() context: { req: Request },
-		// @Args('image', { type: () => GraphQLUpload, nullable: true })
-		// image?: GraphQLUpload
-		// @Args('avatar', { type: () => GraphQLUpload }, FileValidationPipe)
-		// 		avatar: Upload
+
 		@Args(
 			'file',
 			{ type: () => GraphQLUpload, nullable: true },
@@ -168,7 +159,7 @@ export class ChatroomResolver {
 		file?: Upload
 	) {
 		let imagePath: string | null = null
-		// if (image) imagePath = await this.chatroomService.saveImage(image)
+
 		if (
 			file &&
 			file.promise &&
@@ -195,18 +186,13 @@ export class ChatroomResolver {
 			context.req.user.id,
 			imagePath || ''
 		)
-		/////////
 
-		//////////
-		// await this.pubSub
-		// 	.publish(`newMessage.${chatroomId}`, { newMessage })
 		const chatroomUsers = await this.prisma.chatroomUsers.findMany({
 			where: { chatroomId },
 			select: { userId: true }
 		})
 
 		try {
-			// Параллельно публикуем сообщения всем пользователям чата
 			await Promise.all(
 				chatroomUsers.map(user =>
 					this.pubSub.publish(`newMessage.${user.userId}`, {
@@ -316,7 +302,6 @@ export class ChatroomResolver {
 				data.targetUserIds
 			)
 		} catch (error) {
-			// Преобразуем все ошибки в GraphQL-совместимый формат
 			throw new ApolloError(error.message)
 		}
 	}

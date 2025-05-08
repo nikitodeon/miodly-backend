@@ -15,16 +15,15 @@ export class GqlAuthGuard implements CanActivate {
 	public async canActivate(context: ExecutionContext): Promise<boolean> {
 		const ctx = GqlExecutionContext.create(context)
 		const request = ctx.getContext().req
-		//////////////////////////////////////
+
 		const req = ctx.getContext().req
 		console.log('Запрос в GraphQL Guard:', {
-			cookies: req.headers.cookie, // Проверяем, передаётся ли сессия в куках
+			cookies: req.headers.cookie,
 			session: req.session // Проверяем, есть ли сессия в объекте запроса
-			//////////////////////////
 		})
 		if (typeof request.session.userId === 'undefined') {
 			console.log('Пользователь не авторизован')
-			// throw new UnauthorizedException('Пользователь не авторизован')
+
 			return false
 		}
 

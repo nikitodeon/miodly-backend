@@ -23,7 +23,7 @@ export function VerificationTemplate({ domain, token }: VerificationTemplateProp
 						<Text className='text-base text-black'>
 							Спасибо за регистрацию в Miodly! Чтобы подтвердить свой адрес электронной почты, пожалуйста, перейдите по следующей ссылке:
 						</Text>
-						<Link href={verificationLink} className='inline-flex justify-center items-center rounded-full text-sm font-medium text-white bg-[#18B9AE] px-5 py-2'>
+						<Link href={verificationLink} className='inline-flex justify-center items-center rounded-full text-sm font-medium text-black bg-[#ffc83d] px-5 py-2'>
 							Подтвердить почту
 						</Link>
 					</Section>
@@ -33,7 +33,7 @@ export function VerificationTemplate({ domain, token }: VerificationTemplateProp
 							Если у вас есть вопросы или вы столкнулись с трудностями, не стесняйтесь обращаться в нашу службу поддержки по адресу{' '}
 							<Link 
 								href="mailto:nikitodeon@gmail.com" 
-								className="text-[#18b9ae] underline"
+								className="text-[#ffc83d] underline"
 							>
 								nikitodeon@gmail.com
 							</Link>.

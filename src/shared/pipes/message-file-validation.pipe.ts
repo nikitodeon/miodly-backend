@@ -12,17 +12,9 @@ import { validateFileFormat, validateFileSize } from '../utils/file.util'
 export class MessageFileValidationPipe implements PipeTransform {
 	public async transform(value: any, metadata: ArgumentMetadata) {
 		if (!value.filename) {
-			//
-			console.log(
-				value,
-				'esli chto net picture )))))))))))))))))))))))))))))))))))'
-			)
 			return value
 		}
-		console.log(
-			value,
-			'vsio est )))))))))))))))))))))))))))))))))))))))))))))))'
-		)
+
 		const { filename, createReadStream } = value
 
 		const fileStream = createReadStream() as ReadStream

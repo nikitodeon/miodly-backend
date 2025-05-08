@@ -1,9 +1,6 @@
-import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql'
+import { Field, ID, ObjectType } from '@nestjs/graphql'
 
-// import { User } from 'src/user/user.type';
 import { UserModel } from '../auth/account/models/user.model'
-
-import { ChatroomRole } from './inputs/chatroom-role.enum'
 
 @ObjectType()
 export class Chatroom {
@@ -19,12 +16,10 @@ export class Chatroom {
 	@Field({ nullable: true })
 	updatedAt?: Date
 
-	// @Field(() => [UserModel], { nullable: true }) // array of user IDs
-	// users?: UserModel[]
 	@Field(() => [ChatroomUsers], { nullable: true })
 	ChatroomUsers?: ChatroomUsers[]
 
-	@Field(() => [Message], { nullable: true }) // array of message IDs
+	@Field(() => [Message], { nullable: true })
 	messages?: Message[]
 }
 
@@ -45,10 +40,10 @@ export class Message {
 	@Field({ nullable: true })
 	updatedAt?: Date
 
-	@Field(() => Chatroom, { nullable: true }) // array of user IDs
+	@Field(() => Chatroom, { nullable: true })
 	chatroom?: Chatroom
 
-	@Field(() => UserModel, { nullable: true }) // array of user IDs
+	@Field(() => UserModel, { nullable: true })
 	user?: UserModel
 }
 
@@ -64,7 +59,6 @@ export class UserTyping {
 @ObjectType()
 export class UserStoppedTyping extends UserTyping {}
 
-///////////////////////////////
 @ObjectType()
 export class ChatroomUsers {
 	@Field(() => ID)
@@ -80,7 +74,7 @@ export class ChatroomUsers {
 	chatroom: Chatroom
 
 	@Field({ nullable: true })
-	role?: string // роль пользователя в чате (ADMIN, USER)
+	role?: string
 }
 
 @ObjectType()

@@ -38,7 +38,7 @@ export function DeactivateTemplate({ token, metadata }: DeactivateTemplateProps)
 
 					<Section className='bg-gray-100 rounded-lg p-6 mb-6'>
 						<Heading 
-							className='text-xl font-semibold text-[#18B9AE]'
+							className='text-xl font-semibold text-[#ffc83d]'
 						>
 							Информация о запросе:
 						</Heading>
@@ -58,7 +58,7 @@ export function DeactivateTemplate({ token, metadata }: DeactivateTemplateProps)
 							Если у вас есть вопросы или вы столкнулись с трудностями, не стесняйтесь обращаться в нашу службу поддержки по адресу{' '}
 							<Link 
 								href="mailto:nikitodeon@gmail.com" 
-								className="text-[#18b9ae] underline"
+								className="text-[#ffc83d] underline"
 							>
 							nikitodeon@gmail.com
 							</Link>.

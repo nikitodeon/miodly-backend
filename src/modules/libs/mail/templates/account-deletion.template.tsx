@@ -42,7 +42,7 @@ export function AccountDeletionTemplate({ domain }:AccountDeletionTemplateProps)
 						</Text>
 						<Link
 							href={registerLink}
-							className="inline-flex justify-center items-center rounded-md mt-2 text-sm font-medium text-white bg-[#18B9AE] px-5 py-2 rounded-full"
+							className="inline-flex justify-center items-center rounded-md mt-2 text-sm font-medium text-black bg-[#ffc83d] px-5 py-2 rounded-full"
 						>
 							Зарегистрироваться в Miodly
 						</Link>

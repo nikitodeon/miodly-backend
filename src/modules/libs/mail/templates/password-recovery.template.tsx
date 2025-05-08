@@ -29,14 +29,14 @@ export function PasswordRecoveryTemplate({ domain, token, metadata }: PasswordRe
 						<Text className="text-black text-base mt-2">
 							Чтобы создать новый пароль, нажмите на ссылку ниже:
 						</Text>
-						<Link href={resetLink} className='inline-flex justify-center items-center rounded-full text-sm font-medium text-white bg-[#18B9AE] px-5 py-2'>
+						<Link href={resetLink} className='inline-flex justify-center items-center rounded-full text-sm font-medium text-black bg-[#ffc83d] px-5 py-2'>
 							Сбросить пароль
 						</Link>
 					</Section>
 
 					<Section className='bg-gray-100 rounded-lg p-6 mb-6'>
 						<Heading 
-							className='text-xl font-semibold text-[#18B9AE]'
+							className='text-xl font-semibold text-[#ffc83d]'
 						>
 							Информация о запросе:
 						</Heading>
@@ -56,7 +56,7 @@ export function PasswordRecoveryTemplate({ domain, token, metadata }: PasswordRe
 							Если у вас есть вопросы или вы столкнулись с трудностями, не стесняйтесь обращаться в нашу службу поддержки по адресу{' '}
 							<Link 
 								href="mailto:nikitodeon@gmail.com" 
-								className="text-[#18b9ae] underline"
+								className="text-[#ffc83d] underline"
 							>
 								nikitodeon@gmail.com
 							</Link>.

@@ -3,11 +3,7 @@ import { ConfigService } from '@nestjs/config'
 import { Action, Command, Ctx, Start, Update } from 'nestjs-telegraf'
 import { Context, Telegraf } from 'telegraf'
 
-import {
-	// type SponsorshipPlan,
-	TokenType,
-	type User
-} from '@/prisma/generated'
+import { TokenType } from '@/prisma/generated'
 import { PrismaService } from '@/src/core/prisma/prisma.service'
 import type { SessionMetadata } from '@/src/shared/types/session-metadata.types'
 
@@ -29,10 +25,6 @@ export class TelegramService extends Telegraf {
 
 	@Start()
 	public async onStart(@Ctx() ctx: any) {
-		// const username = ctx.message.from.username
-
-		// await ctx.replyWithHTML(` ${username} Иди нахуй чмо`)
-
 		const chatId = ctx.chat.id.toString()
 		const token = ctx.message.text.split(' ')[1]
 
@@ -87,48 +79,8 @@ export class TelegramService extends Telegraf {
 			return
 		}
 
-		// const followersCount = await this.prismaService.follow.count({
-		// 	where: {
-		// 		followingId: user?.id
-		// 	}
-		// })
-
-		await ctx.replyWithHTML(
-			MESSAGES.profile(
-				user
-				// , followersCount
-			),
-			BUTTONS.profile
-		)
+		await ctx.replyWithHTML(MESSAGES.profile(user), BUTTONS.profile)
 	}
-
-	// @Command('follows')
-	// @Action('follows')
-	// public async onFollows(@Ctx() ctx: Context) {
-	// 	const chatId = ctx.chat?.id.toString()
-
-	// 	const user = await this.findUserByChatId(chatId ?? '')
-	// 	const follows = await this.prismaService.follow.findMany({
-	// 		where: {
-	// 			followerId: user?.id
-	// 		},
-	// 		include: {
-	// 			following: true
-	// 		}
-	// 	})
-
-	// 	if (user && follows.length) {
-	// 		const followsList = follows
-	// 			.map(follow => MESSAGES.follows(follow.following))
-	// 			.join('\n')
-
-	// 		const message = `<b>🌟 Каналы на который вы подписаны:</b>\n\n${followsList}`
-
-	// 		await ctx.replyWithHTML(message)
-	// 	} else {
-	// 		await ctx.replyWithHTML('<b>❌ У вас нет подписок.</b>')
-	// 	}
-	// }
 
 	public async sendPasswordResetToken(
 		chatId: string,
@@ -160,50 +112,11 @@ export class TelegramService extends Telegraf {
 		})
 	}
 
-	// public async sendStreamStart(chatId: string, channel: User) {
-	// 	await this.telegram.sendMessage(chatId, MESSAGES.streamStart(channel), {
-	// 		parse_mode: 'HTML'
-	// 	})
-	// }
-
-	// public async sendNewFollowing(chatId: string, follower: User) {
-	// 	const user = await this.findUserByChatId(chatId)
-
-	// 	if (!user) {
-	// 		return 'user not found'
-	// 	}
-	// 	await this.telegram.sendMessage(
-	// 		chatId,
-	// 		MESSAGES.newFollowing(follower, user.followings.length),
-	// 		{
-	// 			parse_mode: 'HTML'
-	// 		}
-	// 	)
-	// }
-
-	// public async sendNewSponsorship(
-	// 	chatId: string,
-	// 	plan: SponsorshipPlan,
-	// 	sponsor: User
-	// ) {
-	// 	await this.telegram.sendMessage(
-	// 		chatId,
-	// 		MESSAGES.newSponsorship(plan, sponsor),
-	// 		{ parse_mode: 'HTML' }
-	// 	)
-	// }
-
 	public async sendEnableTwoFactor(chatId: string) {
 		await this.telegram.sendMessage(chatId, MESSAGES.enableTwoFactor, {
 			parse_mode: 'HTML'
 		})
 	}
-
-	// public async sendVerifyChannel(chatId: string) {
-	// 	await this.telegram.sendMessage(chatId, MESSAGES.verifyChannel, {
-	// 		parse_mode: 'HTML'
-	// 	})
-	// }
 
 	private async connectTelegram(userId: string, chatId: string) {
 		await this.prismaService.user.update({
@@ -220,10 +133,6 @@ export class TelegramService extends Telegraf {
 		const user = await this.prismaService.user.findUnique({
 			where: {
 				telegramId: chatId
-			},
-			include: {
-				// followers: true,
-				// followings: true
 			}
 		})
 

@@ -67,7 +67,7 @@ export class LiveChatroomResolver {
 				...notification,
 				user: {
 					...user,
-					avatar: user.avatar ?? '' // Убедитесь, что avatar не null
+					avatar: user.avatar ?? ''
 				}
 			})),
 			notificationSettings: user.notificationSettings
@@ -75,7 +75,7 @@ export class LiveChatroomResolver {
 						...user.notificationSettings,
 						user: {
 							...user,
-							avatar: user.avatar ?? '' // Убедитесь, что avatar не null
+							avatar: user.avatar ?? ''
 						}
 					}
 				: {
@@ -84,14 +84,14 @@ export class LiveChatroomResolver {
 						telegramNotifications: false,
 						user: {
 							...user,
-							avatar: user.avatar ?? '' // Убедитесь, что avatar не null
+							avatar: user.avatar ?? ''
 						},
 						userId: user.id,
 						createdAt: new Date(),
 						updatedAt: new Date()
 					},
 			totpSecret: user.totpSecret ?? '',
-			deactivatedAt: user.deactivatedAt ?? new Date(0) // Устанавливаем значение по умолчанию
+			deactivatedAt: user.deactivatedAt ?? new Date(0)
 		}
 
 		await this.liveChatroomService.addLiveUserToChatroom(
@@ -126,7 +126,7 @@ export class LiveChatroomResolver {
 	) {
 		if (!context.req.user) {
 			console.log('User is not authenticated')
-			// throw new Error('User is not authenticated')
+
 			return false
 		}
 
@@ -138,20 +138,20 @@ export class LiveChatroomResolver {
 
 		const sanitizedUser: any = {
 			...user,
-			avatar: user.avatar ?? '', // Ensure avatar is never null
-			bio: String(user.bio ?? ''), // Преобразуем в строку, если null
-			telegramId: String(user.telegramId ?? ''), // Преобразуем в строку
+			avatar: user.avatar ?? '',
+			bio: String(user.bio ?? ''),
+			telegramId: String(user.telegramId ?? ''), //
 			socialLinks: user.socialLinks
 				.filter(link => link.userId !== null)
 				.map(link => ({
 					...link,
-					userId: String(link.userId ?? '') // Преобразуем в строку
+					userId: String(link.userId ?? '') //
 				})),
 			notifications: user.notifications.map(notification => ({
 				...notification,
 				user: {
 					...user,
-					avatar: user.avatar ?? '' // Ensure avatar is never null
+					avatar: user.avatar ?? ''
 				}
 			})),
 			notificationSettings: user.notificationSettings
@@ -159,7 +159,7 @@ export class LiveChatroomResolver {
 						...user.notificationSettings,
 						user: {
 							...user,
-							avatar: user.avatar ?? '' // Ensure avatar is never null
+							avatar: user.avatar ?? ''
 						}
 					}
 				: {
@@ -168,14 +168,14 @@ export class LiveChatroomResolver {
 						telegramNotifications: false,
 						user: {
 							...user,
-							avatar: user.avatar ?? '' // Ensure avatar is never null
+							avatar: user.avatar ?? ''
 						},
-						userId: String(user.id), // Преобразуем в строку
+						userId: String(user.id),
 						createdAt: new Date(),
 						updatedAt: new Date()
 					},
-			totpSecret: String(user.totpSecret ?? ''), // Преобразуем в строку
-			deactivatedAt: user.deactivatedAt ?? new Date(0) // Default to zero date if null
+			totpSecret: String(user.totpSecret ?? ''),
+			deactivatedAt: user.deactivatedAt ?? new Date(0)
 		}
 
 		await this.liveChatroomService.removeLiveUserFromChatroom(

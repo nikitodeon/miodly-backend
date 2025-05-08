@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common'
 
-import { Prisma } from '@/prisma/generated'
 import { PrismaService } from '@/src/core/prisma/prisma.service'
 
 import { SessionService } from '../auth/session/session.service'
@@ -9,7 +8,6 @@ import { UserService } from '../user/user.service'
 
 import { ChatroomResolver } from './chatroom.resolver'
 import { ChatroomService } from './chatroom.service'
-import { Chatroom } from './chatroom.types'
 
 @Module({
 	providers: [
