@@ -212,4 +212,20 @@ export class SessionService {
 
 		return true
 	}
+
+	public async getSessionData(sessionId: string): Promise<any> {
+		const sessionData = await this.redisService.get(
+			`${this.configService.getOrThrow<string>('SESSION_FOLDER')}${sessionId}`
+		)
+
+		if (!sessionData) {
+			return null
+		}
+
+		try {
+			return JSON.parse(sessionData)
+		} catch (err) {
+			return null
+		}
+	}
 }

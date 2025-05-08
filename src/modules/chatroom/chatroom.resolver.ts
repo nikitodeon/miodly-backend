@@ -54,10 +54,22 @@ export class ChatroomResolver {
 	/////////////////////////////////
 	@Subscription(() => Message, {
 		filter: (payload, variables) => {
-			// Проверяем, что сообщение пришло в чат, где есть пользователь
-			return payload.newMessageForAllChats.chatroom.users.some(
-				user => user.id === variables.userId
-			)
+			// Полная защита от undefined
+			if (!payload || typeof payload !== 'object') return false
+			if (!payload.newMessageForAllChats) return false
+			if (!payload.newMessageForAllChats.chatroom) return false
+
+			const chatroomUsers =
+				payload.newMessageForAllChats.chatroom.ChatroomUsers
+			if (!Array.isArray(chatroomUsers)) return false
+
+			// Альтернатива .some() с полной проверкой
+			for (const user of chatroomUsers) {
+				if (user?.user?.id === variables.userId) {
+					return true
+				}
+			}
+			return false
 		},
 		resolve: payload => payload.newMessageForAllChats
 	})
@@ -203,23 +215,33 @@ export class ChatroomResolver {
 					})
 				)
 			)
-			const chatroomUsersForAll =
-				await this.prisma.chatroomUsers.findMany({
-					where: { chatroomId },
-					select: { userId: true }
-				})
 
-			for (const { userId: memberId } of chatroomUsersForAll) {
-				await this.pubSub.publish(`newMessageForAllChats.${memberId}`, {
-					newMessage
-				})
+			const chatroomWithUsers = await this.prisma.chatroom.findUnique({
+				where: { id: chatroomId },
+				include: {
+					ChatroomUsers: {
+						include: { user: true }
+					}
+				}
+			})
+
+			const safePayload = {
+				newMessageForAllChats: {
+					...newMessage,
+					chatroom: {
+						id: chatroomId,
+						ChatroomUsers:
+							chatroomWithUsers?.ChatroomUsers?.map(cu => ({
+								user: { id: cu.user.id }
+							})) || []
+					}
+				}
 			}
-		} catch (err) {
-			console.error('Ошибка публикации:', err)
+
+			await this.pubSub.publish(`newMessageForAllChats`, safePayload)
+		} catch (error) {
+			console.log('Error publishing message:', error)
 		}
-		await this.pubSub.publish(`newMessageForAllChats`, {
-			newMessageForAllChats: newMessage
-		})
 
 		return newMessage
 	}
